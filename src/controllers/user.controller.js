@@ -28,7 +28,7 @@ const registerUser = async (req, res) => {
     //check for images : avatar
     console.log(req.files);
     const avatarLocalPath = req.files?.avatar[0]?.path;
-    const coverImageLocalPath = req.files?.coverImg[0]?.path;
+    const coverImageLocalPath = req.files?.coverImage[0]?.path;
     if (!avatarLocalPath) {
       throw new ApiErrors(400, "avatar file is required");
     }
@@ -37,11 +37,11 @@ const registerUser = async (req, res) => {
     const avatar = await uploadOnCloudinary(avatarLocalPath);
     const coverImage = await uploadOnCloudinary(coverImageLocalPath);
     if (!avatar) {
-      throw new ApiErrors(400, "avatar file is required");
+      throw new ApiErrors(400, "AVATAR file is required");
     }
 
     // create user object - create entry in db
-    const user = User.create({
+    const user = await User.create({
       fullName,
       email,
       avatar: avatar.url,
@@ -51,7 +51,7 @@ const registerUser = async (req, res) => {
     });
 
     // check for user creation
-    const createdUser = User.findById(user._id).select(
+    const createdUser = await User.findById(user._id).select(
       "-password -refreshToken"
     );
     if (!createdUser) {
